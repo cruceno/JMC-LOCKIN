@@ -1,6 +1,7 @@
 import sys, os, time
 
 from PySide2.QtCore import Slot, QThread, Signal, SIGNAL
+from PySide2 import QtWidgets
 from PySide2 import QtWidgets, QtGui
 from jmc_lockin.gui.Jmc_app_main_ui import MainApp
 import numpy as np
@@ -23,6 +24,18 @@ class JMCLOCKINDAQ(QtWidgets.QMainWindow, MainApp):
 
     def change_message(self, msg):
         self.statusbar.showMessage(msg, 5000)
+
+    @Slot()
+    def on_tlb_open_file_pressed(self):
+        dialog = QtWidgets.QFileDialog()
+
+        filename = dialog.getSaveFileName(parent=self,
+                                          caption="Guardar archivo de salida",
+                                          dir=os.path.expanduser('~'),
+                                          )
+
+        self.le_output_file.setText(str(filename))
+
 
 
 # noinspection PyTypeChecker

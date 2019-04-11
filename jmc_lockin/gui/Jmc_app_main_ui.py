@@ -1,11 +1,15 @@
 # Se importan los archivos generados por Pyside2-uic
+import os
 from .mainwindow import Ui_jmc_lockin
+
 from PySide2.QtGui import (QIcon, QPixmap, QFont)
 from jmc_lockin.instruments.lockin import ( _SENSITIVITIES, _OSCILLATOR_RANGE,_SINUSOIDAL_SCALES, _PRE_TIME_CONSTANTS,
                                            _POST_TIME_CONSTANTS )
 from jmc_lockin.plot.QtMatplotLibPlot import canvas, NavigationToolbar
-from PySide2.QtWidgets import QVBoxLayout
+from PySide2.QtWidgets import QVBoxLayout, QFileDialog
 from PySide2.QtCore import SIGNAL, Slot
+import numpy as np
+
 from jmc_lockin.instruments.serialutil import scan_serial_ports
 
 
@@ -110,6 +114,13 @@ class MainApp (Ui_jmc_lockin):
                   message,
                   132)
 
+    @Slot(bool)
+    def on_chx_freq_scanning_toggled(self, state):
+        self.lb_end_freq.setEnabled(state)
+        self.dsb_end_freq.setEnabled(state)
+        self.lb_freq_step.setEnabled(state)
+        self.dsb_freq_step.setEnabled(state)
+
     @Slot()
     def change_messagge(self, message, duration=1000):
         self.statusbar.showMessage(message, duration)
@@ -117,3 +128,4 @@ class MainApp (Ui_jmc_lockin):
     @staticmethod
     def change_widget_text_color(widget, r=255, g=255, b=255, a=100):
         widget.setStyleSheet("color: rgb({},{},{},{});".format(r, g, b, a))
+
