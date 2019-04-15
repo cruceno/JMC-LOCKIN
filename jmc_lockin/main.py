@@ -29,13 +29,12 @@ class JMCLOCKINDAQ(QtWidgets.QMainWindow, MainApp):
     def on_tlb_open_file_pressed(self):
         dialog = QtWidgets.QFileDialog()
 
-        filename = dialog.getSaveFileName(parent=self,
-                                          caption="Guardar archivo de salida",
-                                          dir=os.path.expanduser('~'),
-                                          )
-
-        self.le_output_file.setText(str(filename))
-
+        filename, _ = dialog.getSaveFileName(parent=self,
+                                             caption="Guardar archivo de salida",
+                                             dir=os.path.expanduser('~'),
+                                             )
+        if filename:
+            self.le_output_file.setText(filename)
 
 
 # noinspection PyTypeChecker
