@@ -104,13 +104,13 @@ class SR530:
             # Especifica el fin de linea enviado por el lock in en <cr>
             self.write(jcmd)
 
-            return 'Conectado.'
+            return True
             
         except Exception as e:
 
             return 'Error al conectar al puerto serie: {}'.format(str(e))
 
-    def get_channel(self, n):
+    def get_output(self, n):
 
         self.write('Q {}'.format(n))
         return self.read().decode().strip('\n')
@@ -125,7 +125,7 @@ class SR530:
             self.write('X{}'.format(n))
             return self.read()
         else:
-            return "El valor de n debe estar entre 1 y 4"
+            return "El valor de n debe estar entre 1 y 6"
 
     def get_sensitivity(self):
 

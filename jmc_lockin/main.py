@@ -1,11 +1,9 @@
 import sys, os, time
-
-from PySide2.QtCore import Slot, QThread, Signal, SIGNAL
-from PySide2 import QtWidgets
+from PySide2.QtCore import Slot, Signal, SIGNAL
 from PySide2 import QtWidgets, QtGui
+
 from jmc_lockin.gui.Jmc_app_main_ui import MainApp
-import numpy as np
-from configobj import ConfigObj
+from jmc_lockin.threads.threads import Worker
 
 
 # noinspection PyTypeChecker
@@ -15,15 +13,48 @@ class JMCLOCKINDAQ(QtWidgets.QMainWindow, MainApp):
         super(JMCLOCKINDAQ, self).__init__()
         self.setupUi(self)
         self.load_cbx_data()
+        self.worker = Worker()
+
+    def connect_thread_signals(self):
+        """
+
+        Worker *worker = new Worker;
+        worker->moveToThread(&workerThread);
+        connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
+        connect(this, &Controller::operate, worker, &Worker::doWork);
+        connect(worker, &Worker::resultReady, this, &Controller::handleResults);
+        workerThread.start();
+        :return:
+        """
+        self.worker.moveToThread(self.thread())
+        self.worker.data_ready.connect(self.receive_data)
+        self.worker.status.connect(self.update_lockin_status)
+        self.worker.msg.connect(self.change_messagge)
+
+    @Slot()
+    def on_pb_start_pressed(self):
+        #TODO: Rutina para iniciar el ensayo
+        self.worker.start()
+
+    @Slot(object)
+    def update_lockin_status(self, status):
+        """
+            :param status: Diccionario cuyas claves se corresponden con los nombres de los labels que indican el estado del
+            lockin en la ventana principal lb_unlk, lb_err, lb_act, lb_ovld, lb_rem
+        """
+
+        for key, value in status.items():
+            if value:
+                self.change_widget_text_color(self.__getattribute__(key), 245, 1, 1)
+            else:
+                self.change_widget_text_color(self.__getattribute__(key))
+
+    @Slot(object)
+    def receive_data(self, data):
+        print(data)
 
     def load_available_devices(self):
         pass
-
-    def connect_worker(self):
-        pass
-
-    def change_message(self, msg):
-        self.statusbar.showMessage(msg, 5000)
 
     @Slot()
     def on_tlb_open_file_pressed(self):
@@ -33,6 +64,7 @@ class JMCLOCKINDAQ(QtWidgets.QMainWindow, MainApp):
                                              caption="Guardar archivo de salida",
                                              dir=os.path.expanduser('~'),
                                              )
+
         if filename:
             self.le_output_file.setText(filename)
 
@@ -65,12 +97,12 @@ def main():
             try:
                 DAQ.load_available_devices()
             except Exception as err:
-                print (err)
+                print(err)
                 DAQ.change_messagge('Error al cargar los dispositivos.{}'.format(err),
                                     duration=5000
                                     )
         if i == 70:
-            DAQ.connect_worker()
+            DAQ.connect_thread_signals()
 
         while time.time() < t + 0.03:
 

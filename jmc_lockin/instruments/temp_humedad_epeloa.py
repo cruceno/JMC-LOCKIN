@@ -98,4 +98,5 @@ class EpeloaSensor:
         except Exception as e:
             self.serial.close()
             print("No se pudo abrir el puerto seleccionado: {}".format(str(e)))
+
         self.serial.close()

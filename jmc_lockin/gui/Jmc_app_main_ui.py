@@ -55,7 +55,7 @@ class MainApp (Ui_jmc_lockin):
 
     def load_cbx_data(self):
 
-        for device in scan_serial_ports():
+        for device in scan_serial_ports(verbose=False):
             self.cbx_aux_1_port.addItem(device, device)
             self.cbx_lockin_port.addItem(device, device)
 
